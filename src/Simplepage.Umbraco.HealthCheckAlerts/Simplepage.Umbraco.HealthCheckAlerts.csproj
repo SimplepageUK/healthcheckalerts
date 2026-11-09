@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Compiled against the 17.0.0 floor, whose transitive packages (MailKit, MessagePack) have since had advisories.
+         Those belong to Umbraco and a site gets the patched ones with its own Umbraco version, so audit only what we reference. -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Simplepage.Umbraco.HealthCheckAlerts</PackageId>
+    <Version>1.0.0</Version>
+    <Title>Health Check Alerts for Umbraco</Title>
+    <Authors>Simplepage Ltd</Authors>
+    <Company>Simplepage Ltd</Company>
+    <Copyright>Copyright (c) 2026 Simplepage Ltd</Copyright>
+    <Description>Alerts only on the problems from Umbraco's scheduled health checks, by email and an optional JSON webhook. Lists warnings and errors, counts the rest as passed, names the site and environment, goes to one or many recipients, does not repeat unchanged problems, says when they are resolved, and never sends from a developer's local run by default. Snooze known problems and change settings in a back office dashboard with no deploy. Silence means healthy.</Description>
+    <PackageTags>umbraco;umbraco-marketplace;umbraco-17;health-check;monitoring;alerts;email;notifications;webhook</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/SimplepageUK/healthcheckalerts</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SimplepageUK/healthcheckalerts</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Core" Version="[17.0.0, 18.0.0)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="[17.0.0, 18.0.0)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
