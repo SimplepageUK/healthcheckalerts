@@ -1,0 +1,25 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "Simplepage.Umbraco.HealthCheckAlerts",
+  "version": "1.0.0",
+  "allowTelemetry": false,
+  "extensions": [
+    {
+      "type": "dashboard",
+      "alias": "Simplepage.HealthCheckAlerts.Dashboard",
+      "name": "Health Check Alerts dashboard",
+      "element": "/App_Plugins/Simplepage.HealthCheckAlerts/dashboard.js",
+      "weight": -10,
+      "meta": {
+        "label": "Health Check Alerts",
+        "pathname": "health-check-alerts"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Settings"
+        }
+      ]
+    }
+  ]
+}
