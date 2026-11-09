@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    A plain Umbraco 17 site with Health Check Alerts referenced from source. tests/smoke/run.sh uses it to prove
+    the notification method works in a real Umbraco: it is discovered, reads real config, and writes a real
+    email (as an .eml file, nothing is sent). Not packed, not deployed. See CONTRIBUTING.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep these two on the same version. -->
+    <PackageReference Include="Umbraco.Cms" Version="17.8.1" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Simplepage.Umbraco.HealthCheckAlerts/Simplepage.Umbraco.HealthCheckAlerts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- App-local ICU, as the Umbraco template sets it up: on for Windows and Linux, off on macOS. -->
+    <UmbracoUseAppLocalIcu Condition="'$(UmbracoUseAppLocalIcu)' == '' and ($(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx'))))">true</UmbracoUseAppLocalIcu>
+    <UmbracoUseAppLocalIcu Condition="'$(UmbracoUseAppLocalIcu)' == ''">false</UmbracoUseAppLocalIcu>
+    <UmbracoAppLocalIcuVersion>72.1.0.3</UmbracoAppLocalIcuVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UmbracoUseAppLocalIcu)' == 'true'">
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="$(UmbracoAppLocalIcuVersion)" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="$(UmbracoAppLocalIcuVersion)" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Local.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+</Project>
