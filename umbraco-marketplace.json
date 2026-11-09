@@ -1,0 +1,28 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "Title": "Health Check Alerts",
+  "Description": "Tells you when a scheduled health check finds a problem, and says nothing when it doesn't. Umbraco's own health check email lists every check, counts warnings as success so a warnings-only run sends nothing, and never says which site it came from. Health Check Alerts sends only when a run has a warning or an error, lists just those with errors first and a read more link, names the site and environment, goes to one address or many, and never sends from a developer's local copy. It doesn't repeat unchanged problems, tells you when they are resolved, lets you snooze a known problem until a date, and can post a JSON webhook. Settings, a send test alert button and snoozes live in a back office dashboard and apply from the next run with no deploy. Works on Umbraco Cloud, including the Starter plan. Free and MIT licensed.",
+  "Category": "Developer Tools",
+  "AlternateCategory": "Analytics & Insights",
+  "LicenseTypes": [
+    "Free"
+  ],
+  "PackageType": "Package",
+  "Tags": [
+    "health-check",
+    "monitoring",
+    "alerts",
+    "email",
+    "notifications",
+    "webhook",
+    "umbraco-cloud"
+  ],
+  "AuthorDetails": {
+    "Name": "Simplepage Ltd",
+    "Url": "https://github.com/SimplepageUK",
+    "ImageUrl": "https://raw.githubusercontent.com/SimplepageUK/healthcheckalerts/main/assets/icon.png"
+  },
+  "DocumentationUrl": "https://github.com/SimplepageUK/healthcheckalerts#readme",
+  "IssueTrackerUrl": "https://github.com/SimplepageUK/healthcheckalerts/issues",
+  "LookingForContributors": true
+}

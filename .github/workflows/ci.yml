@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # Both, because the maintainers work on macOS and Windows.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # Umbraco's installer writes a generated Imaging:HMACSecretKey into a site's appsettings.json,
+      # and a mail password is the other thing that tends to get committed by accident.
+      # The one allowed exception is the test-only admin password the test site installs itself
+      # with (Unattended:UnattendedUserPassword in its appsettings.Development.json).
+      - name: No secrets in tracked files
+        shell: bash
+        run: |
+          status=0
+          if git grep -nE '"HMACSecretKey"[[:space:]]*:[[:space:]]*"[^"]+"' -- ':(glob)**/appsettings*.json'; then
+            echo "A generated HMAC secret is committed - remove it."
+            status=1
+          fi
+          allowed="tests/Simplepage.Umbraco.HealthCheckAlerts.TestSite/appsettings.Development.json"
+          pattern='"[A-Za-z]*Password"[[:space:]]*:[[:space:]]*"[^"]+"'
+          for f in $(git ls-files ':(glob)**/appsettings*.json'); do
+            if [ "$f" = "$allowed" ]; then
+              hits=$(grep -nE "$pattern" "$f" | grep -v '"UnattendedUserPassword"' || true)
+            else
+              hits=$(grep -nE "$pattern" "$f" || true)
+            fi
+            if [ -n "$hits" ]; then
+              echo "A password is committed in $f:"
+              echo "$hits"
+              status=1
+            fi
+          done
+          exit $status
+
+      # The rules in Core/ are plain C# and must stay testable without Umbraco. The BCL, including
+      # System.Text.Json, is fine.
+      - name: Core stays free of Umbraco
+        shell: bash
+        run: |
+          if git grep -nE 'using (Umbraco|Microsoft\.AspNetCore|Microsoft\.Extensions)|Umbraco\.Cms\.' -- src/Simplepage.Umbraco.HealthCheckAlerts/Core; then
+            echo "Core/ must not reference Umbraco, ASP.NET Core or Microsoft.Extensions - move that code to the Umbraco wiring."
+            exit 1
+          fi
+
+      - name: Build
+        run: dotnet build Simplepage.Umbraco.HealthCheckAlerts.sln -c Release
+
+      - name: Tests
+        run: dotnet run --project tests/Simplepage.Umbraco.HealthCheckAlerts.Tests -c Release --no-build
+
+      # Boots the test site on a real Umbraco, runs a scheduled-style notification, and checks the
+      # .eml files it writes. Linux only: it is slow, and the logic it proves does not vary by OS.
+      - name: Smoke test in a real Umbraco
+        if: matrix.os == 'ubuntu-latest'
+        timeout-minutes: 15
+        shell: bash
+        run: bash tests/smoke/run.sh
+
+      - name: Pack
+        run: dotnet pack src/Simplepage.Umbraco.HealthCheckAlerts -c Release --no-build -o artifacts
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: packages
+          path: artifacts/*
