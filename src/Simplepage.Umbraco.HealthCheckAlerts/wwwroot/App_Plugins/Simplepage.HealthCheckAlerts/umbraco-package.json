@@ -8,7 +8,7 @@
       "type": "dashboard",
       "alias": "Simplepage.HealthCheckAlerts.Dashboard",
       "name": "Health Check Alerts dashboard",
-      "element": "/App_Plugins/Simplepage.HealthCheckAlerts/dashboard.js",
+      "element": "/App_Plugins/Simplepage.HealthCheckAlerts/dashboard.js?v=1.0.0",
       "weight": -10,
       "meta": {
         "label": "Health Check Alerts",

@@ -92,3 +92,9 @@ The rest of the package:
 - Escape everything that goes into the email. A health check message is data from somewhere else, not markup you wrote.
 - Every behaviour change comes with a test case that proves it, with the reason named.
 - UK English in docs and messages.
+
+## Working on the dashboard
+
+- Browsers cache `dashboard.js` without revalidating, so a hard refresh may keep running the old script. The script URL in `umbraco-package.json` carries `?v=<package version>`, and a unit test checks it matches the csproj `<Version>`. Bump both on every release. While editing the script, tick "Disable cache" in the browser's developer tools, or change the `?v=` value temporarily.
+- Do not wrap UUI controls in a `<label>` and do not set `display: block` on `uui-input`. Both stop the input taking a click or showing its value. Unit tests guard against both. Use `<uui-label>` and leave the input's display alone.
+- The test site needs a `mail` folder next to it for the pickup directory. Without it a test alert fails with `DirectoryNotFoundException`.

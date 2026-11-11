@@ -68,7 +68,9 @@ public sealed class AlertDispatcher
             }
             catch (Exception ex)
             {
-                email = new DeliveryResult(false, "The email could not be sent. See the log.");
+                // The exception type is safe to show and usually says enough (for example DirectoryNotFoundException
+                // for a missing pickup folder). The detail stays in the log.
+                email = new DeliveryResult(false, $"The email could not be sent ({ex.GetType().Name}). See the log.");
                 _logger.LogError(ex, "Health check alerts: the email could not be sent.");
             }
         }

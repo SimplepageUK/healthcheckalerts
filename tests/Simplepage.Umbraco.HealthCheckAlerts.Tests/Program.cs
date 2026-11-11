@@ -689,6 +689,21 @@ foreach (var file in coreFiles)
     Check($"{Path.GetFileName(file)} has no Umbraco or ASP.NET Core reference", offending.Count == 0, string.Join(", ", offending));
 }
 
+// ---------------------------------------------------------------------------------------------------
+Section("DASHBOARD ASSETS");
+
+// Browsers cache dashboard.js with no revalidation, so an upgraded package would keep running the old
+// script. The version in the URL changes the URL on every release. It must match the package version.
+var packageRoot = Path.GetFullPath(Path.Combine(coreFolder, ".."));
+var csprojText = File.ReadAllText(Path.Combine(packageRoot, "Simplepage.Umbraco.HealthCheckAlerts.csproj"));
+var projectVersion = System.Text.RegularExpressions.Regex.Match(csprojText, "<Version>([^<]+)</Version>").Groups[1].Value;
+var manifestText = File.ReadAllText(Path.Combine(packageRoot, "wwwroot", "App_Plugins", "Simplepage.HealthCheckAlerts", "umbraco-package.json"));
+Check("the dashboard script URL carries the package version", manifestText.Contains($"dashboard.js?v={projectVersion}\""), $"version {projectVersion}");
+Check("the manifest version matches the package version", manifestText.Contains($"\"version\": \"{projectVersion}\""));
+var dashboardText = File.ReadAllText(Path.Combine(packageRoot, "wwwroot", "App_Plugins", "Simplepage.HealthCheckAlerts", "dashboard.js"));
+Check("no label element wraps a UUI control", !dashboardText.Contains("<label"));
+Check("uui-input is never forced to display block", !System.Text.RegularExpressions.Regex.IsMatch(dashboardText, @"uui-input[^{}]*\{[^}]*display:\s*block"));
+
 Console.WriteLine($"\n{pass} passed, {fail} failed\n");
 return fail == 0 ? 0 : 1;
 

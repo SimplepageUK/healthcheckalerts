@@ -228,12 +228,12 @@ export default class HealthCheckAlertsDashboard extends UmbElementMixin(LitEleme
       ${problem.readMoreUrl ? html`<a href=${problem.readMoreUrl} target="_blank" rel="noopener noreferrer">Read more</a>` : nothing}
       ${snoozing
         ? html`<div class="snooze-form">
-            <label>Snooze until (this day is the last one muted)
+            <div class="snooze-field"><uui-label>Snooze until (this day is the last one muted)</uui-label>
               <uui-input type="date" .value=${this._snoozing.until} @input=${(e) => (this._snoozing = { ...this._snoozing, until: e.target.value })}></uui-input>
-            </label>
-            <label>Reason
+            </div>
+            <div class="snooze-field"><uui-label>Reason</uui-label>
               <uui-input placeholder="Optional, shown in the alert" .value=${this._snoozing.reason} @input=${(e) => (this._snoozing = { ...this._snoozing, reason: e.target.value })}></uui-input>
-            </label>
+            </div>
             <uui-button look="primary" label="Snooze" @click=${() => this.#snooze()}></uui-button>
             <uui-button look="secondary" label="Cancel" @click=${() => (this._snoozing = null)}></uui-button>
           </div>`
@@ -243,10 +243,10 @@ export default class HealthCheckAlertsDashboard extends UmbElementMixin(LitEleme
 
   #renderSettings() {
     const form = this._form;
-    const text = (label, field, extra = {}) => html`<label class="field">${label}
+    const text = (label, field, extra = {}) => html`<div class="field"><uui-label>${label}</uui-label>
       <uui-input .value=${form[field] ?? ''} @input=${(e) => this.#set(field, e.target.value)} placeholder=${extra.placeholder ?? ''}></uui-input>
       ${this.#fromConfig(this.#savedName(field))}
-    </label>`;
+    </div>`;
     const toggle = (label, field, hint) => html`<div class="field">
       <uui-toggle label=${label} ?checked=${form[field]} @change=${(e) => this.#set(field, e.target.checked)}></uui-toggle>
       ${hint ? html`<small>${hint}</small>` : nothing}
@@ -255,18 +255,18 @@ export default class HealthCheckAlertsDashboard extends UmbElementMixin(LitEleme
 
     return html`
       <uui-box headline="Email">
-        <label class="field">Recipients
+        <div class="field"><uui-label>Recipients</uui-label>
           <uui-textarea .value=${form.recipientEmail} @input=${(e) => this.#set('recipientEmail', e.target.value)} placeholder="support@example.com, ops@example.com"></uui-textarea>
           <small>One or more addresses, separated by commas, semicolons, spaces or new lines. Leave empty to use only the webhook.</small>
           ${this.#fromConfig('RecipientEmail')}
-        </label>
+        </div>
         ${text('Site name', 'siteName', { placeholder: 'Named in every subject line' })}
-        <label class="field">Minimum severity
+        <div class="field"><uui-label>Minimum severity</uui-label>
           <uui-select .options=${SEVERITIES.map((value) => ({ name: value, value, selected: form.minimumSeverity === value }))}
             @change=${(e) => this.#set('minimumSeverity', e.target.value)}></uui-select>
           <small>Error leaves warnings out of alerts.</small>
           ${this.#fromConfig('MinimumSeverity')}
-        </label>
+        </div>
         ${text('Subject prefix', 'subjectPrefix')}
         ${text('Ignored environments', 'ignoreEnvironments')}
         <small>Scheduled runs in these environments (comma separated) never send, by email or webhook. Leave empty to send from everywhere.</small>
@@ -278,28 +278,28 @@ export default class HealthCheckAlertsDashboard extends UmbElementMixin(LitEleme
         <p>Posts a JSON summary to a URL after each alert. https only (http is allowed for localhost). Leave the URL empty to turn it off.</p>
         ${text('URL', 'webhookUrl', { placeholder: 'https://example.com/hooks/health' })}
         ${text('Header name for the key', 'webhookAuthHeader')}
-        <label class="field">Key
+        <div class="field"><uui-label>Key</uui-label>
           <uui-input type="password" autocomplete="off" .value=${form.webhookAuthKey}
             placeholder=${this._settings.webhookAuthKeySet && !this._clearKey ? 'A key is set. Leave blank to keep it.' : 'Optional'}
             @input=${(e) => this.#set('webhookAuthKey', e.target.value)}></uui-input>
           <small>Sent as the value of the header above. It is stored on the server and is never shown again.</small>
-        </label>
+        </div>
         ${this._settings.webhookAuthKeySet
           ? html`<uui-checkbox label="Remove the saved key" ?checked=${this._clearKey} @change=${(e) => (this._clearKey = e.target.checked)}></uui-checkbox>`
           : nothing}
       </uui-box>
 
       <uui-box headline="Repeats and reminders">
-        <label class="field">Send an alert
+        <div class="field"><uui-label>Send an alert</uui-label>
           <uui-select .options=${REPEAT_MODES.map((mode) => ({ name: mode.name, value: mode.value, selected: form.repeatMode === mode.value }))}
             @change=${(e) => this.#set('repeatMode', e.target.value)}></uui-select>
           ${this.#fromConfig('RepeatMode')}
-        </label>
-        <label class="field">Remind about unchanged problems after (days)
+        </div>
+        <div class="field"><uui-label>Remind about unchanged problems after (days)</uui-label>
           <uui-input type="number" min="0" max="365" .value=${String(form.reminderEveryDays)} @input=${(e) => this.#set('reminderEveryDays', e.target.value)}></uui-input>
           <small>0 means never remind. Only applies to the first option above.</small>
           ${this.#fromConfig('ReminderEveryDays')}
-        </label>
+        </div>
         ${toggle('Send an alert when everything has cleared', 'sendResolved')}
       </uui-box>
 
@@ -342,7 +342,12 @@ export default class HealthCheckAlertsDashboard extends UmbElementMixin(LitEleme
     :host { display: block; padding: var(--uui-size-layout-1); }
     uui-box { margin-bottom: var(--uui-size-layout-1); }
     .field { display: block; margin-bottom: var(--uui-size-space-5); }
-    .field uui-input, .field uui-textarea, .field uui-select { display: block; width: 100%; margin-top: var(--uui-size-space-2); }
+    .snooze-field { display: block; }
+    uui-label { display: block; }
+    .field uui-textarea, .field uui-select { display: block; width: 100%; margin-top: var(--uui-size-space-2); }
+    /* uui-input lays its inner input out as a flex row. Forcing it to display:block pushed the real input
+       below the visible box, so the box showed nothing and a click never reached the input. */
+    .field uui-input { display: flex; width: 100%; margin-top: var(--uui-size-space-2); }
     small { display: block; color: var(--uui-color-text-alt); margin-top: var(--uui-size-space-1); }
     .from-config { font-style: italic; }
     .problem { border-top: 1px solid var(--uui-color-border); padding: var(--uui-size-space-3) 0; }
