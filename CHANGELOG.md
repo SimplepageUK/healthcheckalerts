@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 - 2026-11-09 (unreleased)
+## 1.0.0 - 2026-11-11
 
 First release. A health check alert you can read, that says which site it is about, that stays quiet when nothing is wrong, and that you configure in the back office instead of with a deploy.
 
