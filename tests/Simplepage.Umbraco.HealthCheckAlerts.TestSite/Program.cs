@@ -5,6 +5,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
+// Umbraco's pickup-directory email delivery fails if the folder does not exist.
+Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "mail"));
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
